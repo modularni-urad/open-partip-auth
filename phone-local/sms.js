@@ -1,13 +1,11 @@
 
 module.exports = (options) => {
   //
-  const CONTENTS = {
-    verify: `Potvrzovaci kod pro registraci na ${options.web} je: `
-  }
+  const CONTENTS = `Potvrzovaci kod pro ${options.web} je: `
 
   return {
-    send: (typ, code) => {
-      const msg = CONTENTS[typ] + code
+    send: (code) => {
+      const msg = CONTENTS + code
       console.log(msg)
     }
   }

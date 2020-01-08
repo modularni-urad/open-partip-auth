@@ -32,6 +32,7 @@ function randomToken () {
 
 module.exports = function ({ name = 'local', ooth, defaultLanguage, translations, validators }) {
   const actualValidators = { ...DEFAULT_VALIDATORS, ...validators }
+  const sms = SMS({ web: 'info.taborcz.eu' })
 
   function testValue (key, value, language) {
     const validator = actualValidators[key]
@@ -80,33 +81,6 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, translations
       })
     )
   )
-
-  // ooth.registerMethod(
-  //   name,
-  //   'set-username',
-  //   [ooth.requireLogged],
-  //   async ({ username }, userId, locale) => {
-  //     if (typeof username !== 'string') {
-  //       throw new Error(__('set_username.invalid_username', null, locale))
-  //     }
-  //
-  //     testValue('username', username, locale)
-  //
-  //     const existingUser = await ooth.getUserByUniqueField('username', username)
-  //
-  //     if (existingUser) {
-  //       throw new Error(__('set_username.username_taken', null, locale))
-  //     }
-  //
-  //     await ooth.updateUser(name, userId!, {
-  //       username,
-  //     })
-  //
-  //     return {
-  //       message: __('set_username.username_updated', null, locale),
-  //     }
-  //   },
-  // )
 
   // ooth.registerMethod(
   //   name,
@@ -192,7 +166,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, translations
 
   ooth.registerMethod(
     name,
-    'validationCode',
+    'validationcode',
     [ooth.requireNotLogged],
     async ({ phone }, _userId, locale) => {
       if (typeof phone !== 'number') {
@@ -201,7 +175,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, translations
       testValue('phone', phone, locale)
 
       const code = Codes.generate(phone)
-      SMS.send('verify', code)
+      sms.send(code)
 
       return { message: 'ok' }
     }
@@ -292,137 +266,34 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, translations
   //   },
   // )
 
-  // ooth.registerMethod(
-  //   name,
-  //   'forgot-password',
-  //   [ooth.requireNotLogged],
-  //   async ({ username }: any, _userId: string | undefined, locale: string): Promise<Result> => {
-  //     if (!username || typeof username !== 'string') {
-  //       throw new Error(__('forgot_password.invalid_username', null, locale))
-  //     }
-  //
-  //     let user = await ooth.getUserByUniqueField('username', username)
-  //     if (!user) {
-  //       user = await ooth.getUserByUniqueField('email', username)
-  //     }
-  //
-  //     if (!user) {
-  //       throw new Error(__('forgot_password.no_user', null, locale))
-  //     }
-  //
-  //     const email = ooth.getUniqueField(user, 'email')
-  //
-  //     const passwordResetToken = randomToken()
-  //
-  //     await ooth.updateUser(name, user._id, {
-  //       email,
-  //       passwordResetToken: await hash(passwordResetToken, SALT_ROUNDS),
-  //       passwordResetTokenExpiresAt: new Date(Date.now() + HOUR),
-  //     })
-  //
-  //     await ooth.emit(name, 'forgot-password', {
-  //       email,
-  //       passwordResetToken,
-  //       _id: user._id,
-  //     })
-  //
-  //     return {
-  //       message: __('forgot_password.token_generated', null, locale),
-  //     }
-  //   },
-  // )
+  ooth.registerMethod(
+    name,
+    'change-password',
+    [ooth.requireNotLogged],
+    async ({ phone, password, validcode }, userId) => {
+      if (typeof password !== 'string') {
+        throw new Error('change_password.invalid_password')
+      }
+      if (!Codes.validate(phone, validcode)) {
+        throw new Error('register.invalid_validation_code')
+      }
 
-  // ooth.registerMethod(
-  //   name,
-  //   'reset-password',
-  //   [ooth.requireNotLogged],
-  //   async ({ userId, token, newPassword }: any, _userId: string | undefined, locale: string): Promise<Result> => {
-  //     if (!userId) {
-  //       throw new Error(__('reset_password.no_user_id', null, locale))
-  //     }
-  //
-  //     if (!token) {
-  //       throw new Error(__('reset_password.no_token', null, locale))
-  //     }
-  //
-  //     if (!newPassword || typeof newPassword !== 'string') {
-  //       throw new Error(__('reset_password.invalid_password', null, locale))
-  //     }
-  //
-  //     testValue('password', newPassword, locale)
-  //
-  //     const user = await ooth.getUserById(userId)
-  //
-  //     if (!user) {
-  //       throw new Error('User does not exist.')
-  //     }
-  //
-  //     const strategyValues = user[name] as StrategyValues
-  //
-  //     if (!strategyValues || !strategyValues.passwordResetToken) {
-  //       throw new Error(__('reset_password.no_reset_token', null, locale))
-  //     }
-  //
-  //     if (!(await compare(token, strategyValues.passwordResetToken))) {
-  //       throw new Error(__('reset_password.invalid_token', null, locale))
-  //     }
-  //
-  //     if (!strategyValues.passwordResetTokenExpiresAt) {
-  //       throw new Error(__('reset_password.no_expiry', null, locale))
-  //     }
-  //
-  //     if (new Date() >= strategyValues.passwordResetTokenExpiresAt) {
-  //       throw new Error(__('reset_password.expired_token', null, locale))
-  //     }
-  //
-  //     await ooth.updateUser(name, user._id, {
-  //       passwordResetToken: null,
-  //       password: await hash(newPassword, SALT_ROUNDS),
-  //     })
-  //
-  //     await ooth.emit(name, 'reset-password', {
-  //       _id: user._id,
-  //       email: strategyValues.email,
-  //     })
-  //
-  //     return {
-  //       message: __('reset_password.password_reset', null, locale),
-  //     }
-  //   },
-  // )
+      testValue('password', password)
 
-  // ooth.registerMethod(
-  //   name,
-  //   'change-password',
-  //   [ooth.requireLogged],
-  //   async ({ password, newPassword }: any, userId: string | undefined, locale: string): Promise<Result> => {
-  //     if (typeof password !== 'string') {
-  //       throw new Error(__('change_password.invalid_password', null, locale))
-  //     }
-  //
-  //     testValue('password', newPassword, locale)
-  //
-  //     const user = await ooth.getUserById(userId!)
-  //
-  //     const strategyValues = user![name] as StrategyValues
-  //
-  //     if ((password || (strategyValues && strategyValues.password)) && !(await compare(password, strategyValues.password))) {
-  //       throw new Error(__('change_password.invalid_password', null, locale))
-  //     }
-  //
-  //     await ooth.updateUser(name, userId!, {
-  //       passwordResetToken: null,
-  //       password: await hash(newPassword, SALT_ROUNDS),
-  //     })
-  //
-  //     await ooth.emit(name, 'change-password', {
-  //       _id: userId!,
-  //       email: strategyValues && strategyValues.email,
-  //     })
-  //
-  //     return {
-  //       message: __('change_password.password_changed', null, locale),
-  //     }
-  //   },
-  // )
+      const existingUser = await ooth.getUserByUniqueField('phone', phone)
+      if (!existingUser) {
+        throw new Error('register.invalid_phone')
+      }
+
+      await ooth.updateUser(name, existingUser._id, {
+        password: await hash(password, SALT_ROUNDS)
+      })
+
+      await ooth.emit(name, 'change-password', {
+        _id: existingUser._id, phone
+      })
+
+      return { message: 'change_password.password_changed' }
+    }
+  )
 }
