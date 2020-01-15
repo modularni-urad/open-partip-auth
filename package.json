@@ -1,0 +1,35 @@
+{
+  "name": "open-partip-auth",
+  "version": "0.1.0",
+  "description": "Auth api for open-partip",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vaclav Klecanda <vencax77@gmail.com> (http://vxk.cz)",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "cors": "^2.8.1",
+    "dotenv": "^6.0.0",
+    "express": "^4.14.1",
+    "generate-sms-verification-code": "^1.0.5",
+    "install": "^0.13.0",
+    "mongodb": "^2.2.33",
+    "morgan": "^1.8.0",
+    "nodemailer": "^2.0.0",
+    "npm": "^6.13.4",
+    "ooth": "^2.0.0",
+    "ooth-jwt": "^2.0.0",
+    "ooth-local": "^2.0.0",
+    "ooth-local-emailer": "^2.0.0",
+    "ooth-mongo": "^2.0.0",
+    "ooth-user": "^2.0.0",
+    "ooth-ws": "^2.0.0",
+    "passport-local": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=8"
+  }
+}
