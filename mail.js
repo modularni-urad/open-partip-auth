@@ -2,15 +2,24 @@ const nodemailer = require('nodemailer')
 const smtpTransport = require('nodemailer-smtp-transport')
 
 module.exports = function (options) {
-  const transporter = nodemailer.createTransport(smtpTransport(options.connstring))
+  const trn = smtpTransport(options.connstring)
+  const transporter = nodemailer.createTransport(trn)
+
   return function ({ from, to, subject, body, html }) {
-    return transporter.sendMail({
+    const data = {
       from,
       to,
       subject,
       text: body
-    }).catch(err => {
-      console.error(err)
-    })
+    }
+    console.log(data)
+    return transporter.sendMail(data)
+      .then(res => {
+        console.log(res)
+        return res
+      })
+      .catch(err => {
+        console.error(err)
+      })
   }
 }

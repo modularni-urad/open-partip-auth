@@ -2,15 +2,14 @@ require('dotenv').config()
 const express = require('express')
 const { Ooth } = require('ooth')
 const { OothMongo } = require('ooth-mongo')
-// const oothLocal = require('ooth-local').default
 const oothLocal = require('./phone-local')
 const oothUser = require('ooth-user').default
-// const oothWs = require('ooth-ws').default
 const emailer = require('ooth-local-emailer').default
 const oothJwt = require('ooth-jwt').default
 const morgan = require('morgan')
 const cors = require('cors')
 const mail = require('./mail')
+const czStrings = require('./cs.js')
 const { MongoClient } = require('mongodb')
 
 async function start () {
@@ -35,18 +34,21 @@ async function start () {
     })
 
     oothLocal({ ooth })
+
+    const verifyURL = `${process.env.MAIL_URL}/local/verify-email?token={verification-token}&userId={user-id}`
     emailer({
       ooth,
       from: process.env.MAIL_FROM,
       siteName: process.env.MAIL_SITE_NAME,
-      url: process.env.MAIL_URL,
+      translations: { cs: czStrings },
+      defaultLanguage: 'cs',
+      urls: { verifyEmail: verifyURL },
       sendMail: mail({
         connstring: process.env.SMTP_CONN
       })
     })
     oothUser({ ooth })
     oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET, tokenLocation: 'header' })
-    // oothWs({ ooth })
 
     app.listen(process.env.PORT, function () {
       console.info(`Ooth started on port ${process.env.PORT}`)
