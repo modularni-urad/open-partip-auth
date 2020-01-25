@@ -82,26 +82,25 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
     )
   )
 
-  ooth.registerMethod(
-    name,
-    'set-email',
-    [ooth.requireLogged],
-    async ({ email }, userId, locale) => {
+  ooth.app.put('/local/set-email', async (req, res) => {
+    try {
+      const email = req.query.email
+      const uid = req.query.uid
       if (typeof email !== 'string') {
         throw new Error('set_email.invalid_email')
       }
 
-      testValue('email', email, locale)
+      testValue('email', email, 'en')
 
       const existingUser = await ooth.getUserByUniqueField('email', email)
-      if (existingUser && existingUser._id !== userId) {
+      if (existingUser && existingUser._id !== uid) {
         throw new Error('set_email.email_already_registered')
       }
 
       const verificationToken = randomToken()
 
-      await ooth.updateUser(name, userId, {
-        email,
+      await ooth.updateUser(name, uid, {
+        email4verify: email,
         verificationToken: await hash(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR)
       })
@@ -109,12 +108,14 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       await ooth.emit(name, 'set-email', {
         email,
         verificationToken,
-        _id: userId
+        _id: uid
       })
 
-      return { message: 'set_email.email_updated' }
+      res.json({ message: 'set_email.email_updated' })
+    } catch (err) {
+      res.status(400).json(err.message)
     }
-  )
+  })
 
   ooth.registerMethod(
     name,
@@ -196,7 +197,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
 
       const strategyValues = user[name]
 
-      if (!strategyValues || !strategyValues.email) {
+      if (!strategyValues || !strategyValues.email4verify) {
         // No email to verify, but let's not leak this information
         throw new Error('verify.no_email')
       }
@@ -215,8 +216,10 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       }
 
       await ooth.updateUser(name, user._id, {
+        email: strategyValues.email4verify,
         verified: true,
-        verificationToken: null
+        verificationToken: null,
+        email4verify: null
       })
 
       const newUser = await ooth.getUserById(user._id)

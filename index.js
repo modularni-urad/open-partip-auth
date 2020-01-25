@@ -33,7 +33,6 @@ async function start () {
     const ooth = new Ooth({
       app,
       backend: oothMongo,
-      sessionSecret: process.env.SESSION_SECRET,
       standalone: true
     })
 
