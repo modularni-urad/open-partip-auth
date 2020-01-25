@@ -173,7 +173,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       testValue('phone', phone, locale)
 
       const code = Codes.generate(phone)
-      sms.send(code)
+      await sms.send(phone, code)
 
       return { message: 'ok' }
     }
@@ -252,10 +252,6 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
 
       await ooth.updateUser(name, existingUser._id, {
         password: await hash(password, SALT_ROUNDS)
-      })
-
-      await ooth.emit(name, 'change-password', {
-        _id: existingUser._id, phone
       })
 
       return { message: 'change_password.password_changed' }
