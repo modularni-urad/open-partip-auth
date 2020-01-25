@@ -24,7 +24,11 @@ async function start () {
     app.use(corsMiddleware)
     app.options(corsMiddleware)
 
-    const db = await MongoClient.connect(process.env.MONGO_URL)
+    const client = await MongoClient.connect(process.env.MONGO_URL, {
+      useUnifiedTopology: true
+    })
+    const db = client.db(process.env.MONGO_DBNAME)
+
     const oothMongo = new OothMongo(db)
     const ooth = new Ooth({
       app,
