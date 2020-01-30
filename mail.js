@@ -5,6 +5,14 @@ module.exports = function (options) {
   const trn = smtpTransport(options.connstring)
   const transporter = nodemailer.createTransport(trn)
 
+  transporter.verify()
+    .then(() => {
+      console.log('SMTP ready ...')
+    })
+    .catch(err => {
+      console.error(err)
+    })
+
   return function ({ from, to, subject, body, html }) {
     const data = {
       from,
