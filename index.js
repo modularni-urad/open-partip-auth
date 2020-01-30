@@ -53,8 +53,9 @@ async function start () {
     oothUser({ ooth })
     oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET, tokenLocation: 'header' })
 
-    app.listen(process.env.PORT, function () {
-      console.info(`Ooth started on port ${process.env.PORT}`)
+    const host = process.env.HOST || '127.0.0.1'
+    app.listen(process.env.PORT, host, function () {
+      console.info(`Ooth started on ${host}:${process.env.PORT}`)
     })
   } catch (e) {
     console.error(e)

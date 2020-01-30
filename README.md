@@ -15,6 +15,7 @@ Only thru ENVIRONMENT VARIABLES. Sample .env file (we are using [dotenv](https:/
 
 ```
 PORT=30011
+HOST=0.0.0.0
 MONGO_URL=mongodb://localhost:27017
 MONGO_DBNAME=ooth
 SMS_SEND_URL=http://test.vxk.cz
