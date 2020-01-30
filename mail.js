@@ -5,6 +5,7 @@ module.exports = function (options) {
   const trn = smtpTransport(options.connstring)
   const transporter = nodemailer.createTransport(trn)
 
+  console.log('SMTP verify: ' + options.connstring)
   transporter.verify()
     .then(() => {
       console.log('SMTP ready ...')
