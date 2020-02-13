@@ -122,7 +122,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
     'register',
     [ooth.requireNotLogged],
     async ({ phone, email, password, validcode }, _userId, locale) => {
-      if (typeof phone !== 'number') {
+      if (!/^[0-9]{9}$/.test(phone)) {
         throw new Error('validation.invalid_phone')
       }
       if (typeof email !== 'string') {
@@ -168,13 +168,17 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
     'validationcode',
     [ooth.requireNotLogged],
     async ({ phone }, _userId, locale) => {
-      if (typeof phone !== 'number') {
+      if (!/^[0-9]{9}$/.test(phone)) {
         throw new Error('validation.invalid_phone')
       }
       testValue('phone', phone, locale)
 
       const code = Codes.generate(phone)
-      await sms.send(phone, code)
+      try {
+        await sms.send(phone, code)
+      } catch (err) {
+        throw new Error('unable to send SMS')
+      }
 
       return { message: 'ok' }
     }
@@ -250,7 +254,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
 
       const existingUser = await ooth.getUserByUniqueField('phone', phone)
       if (!existingUser) {
-        throw new Error('register.invalid_phone')
+        throw new Error('register.unknown_phone')
       }
 
       await ooth.updateUser(name, existingUser._id, {

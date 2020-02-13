@@ -9,7 +9,7 @@ module.exports = {
     return token
   },
   validate: (phone, token) => {
-    const valid = DB[phone] === token
+    const valid = token && DB[phone].toString() === token.toString()
     valid && delete DB[phone]
     return valid
   }
