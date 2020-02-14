@@ -64,7 +64,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       callbackify(async (req, username, password) => {
         const err = 'login.invalid_credentials'
 
-        let user = await ooth.getUserByUniqueField('phone', Number(username))
+        let user = await ooth.getUserByUniqueField('phone', username)
         if (!user) {
           user = await ooth.getUserByUniqueField('email', username)
         }
