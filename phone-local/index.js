@@ -152,7 +152,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
         verificationTokenExpiresAt: new Date(Date.now() + HOUR)
       })
 
-      await ooth.emit(name, 'register', {
+      email && await ooth.emit(name, 'register', {
         _id,
         phone,
         email,
