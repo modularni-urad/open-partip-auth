@@ -200,8 +200,10 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       }
 
       const strategyValues = user[name]
+      const email4verify = strategyValues &&
+        (strategyValues.email4verify || strategyValues.email)
 
-      if (!strategyValues || !strategyValues.email4verify) {
+      if (!strategyValues || !email4verify) {
         // No email to verify, but let's not leak this information
         throw new Error('verify.no_email')
       }
@@ -220,7 +222,7 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
       }
 
       await ooth.updateUser(name, user._id, {
-        email: strategyValues.email4verify,
+        email: email4verify,
         verified: true,
         verificationToken: null,
         email4verify: null
