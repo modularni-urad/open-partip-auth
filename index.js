@@ -51,7 +51,12 @@ async function start () {
       })
     })
     oothUser({ ooth })
-    oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET, tokenLocation: 'header' })
+    oothJwt({
+      ooth,
+      sharedSecret: process.env.SHARED_SECRET,
+      tokenLocation: 'header',
+      includeProfile: true
+    })
 
     const host = process.env.HOST || '127.0.0.1'
     app.listen(process.env.PORT, host, function () {
