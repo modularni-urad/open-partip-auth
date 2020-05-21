@@ -184,6 +184,16 @@ module.exports = function ({ name = 'local', ooth, defaultLanguage, validators }
     }
   )
 
+  ooth.app.get('/local/userinfo', (req, res, next) => {
+    ooth.getUserById(req.query.userId).then(user => {
+      res.json({
+        id: user._id,
+        email: user.local.email,
+        phone: user.local.phone
+      })
+    }).catch(next)
+  })
+
   ooth.app.get('/local/verify-email', async (req, res) => {
     try {
       if (!req.query || !req.query.userId) {
